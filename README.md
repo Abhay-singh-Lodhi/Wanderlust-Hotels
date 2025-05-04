@@ -96,6 +96,15 @@ App will typically run at:
 
 ---
 
+## Screenshots
+
+![website screenshot](utils/images/ss31.png)
+![website screenshot](utils/images/ss32.png)
+![website screenshot](utils/images/ss33.png)
+![website screenshot](utils/images/ss34.png)
+![website screenshot](utils/images/ss35.png)
+
+
 ## 🤝 Contributing
 
 Feel free to fork the project and submit pull requests for enhancements or bug fixes.
