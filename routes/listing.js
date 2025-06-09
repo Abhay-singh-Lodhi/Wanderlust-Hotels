@@ -17,6 +17,8 @@ router
     wrapAsync(listingController.createListing)
   );
 
+  router.get("/create-multiple", isLoggedIn, listingController.createMultipleListings);
+
 //New Route
 router.get("/new", isLoggedIn, listingController.renderNewForm);
 

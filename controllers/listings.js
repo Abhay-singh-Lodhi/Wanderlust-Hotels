@@ -1,6 +1,10 @@
 const Listing = require("../models/listing.js");
 const { listingSchema } = require("../schema.js");
 const geocode = require("../utils/geocode");
+const { sampleListings } = require("../init/data.js");
+
+const fetchHotelList = require("../utils/api");
+const airbnbHotelList = require("../utils/airbnbApi"); // adjust path as needed
 
 module.exports.index = async (req, res) => {
   const allListings = await Listing.find({});
@@ -43,6 +47,177 @@ module.exports.createListing = async (req, res, next) => {
   await newListing.save();
   req.flash("success", "New Listing Created");
   res.redirect("/listings");
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+module.exports.createMultipleListings = async (req, res, next) => {
+   try {
+    let listingsData = await airbnbHotelList(); // assuming it returns an array of hotel/listing objects
+    let data = listingsData.data.list;
+    console.log(data);
+    const ownerId = req.user._id; // assuming user is authenticated
+
+    for (let i = 0; i < data.length; i++) {
+      let listing = data[i].listing;
+      let priceString = data[i].structuredDisplayPrice.primaryLine.price ;
+let price = parseInt(priceString.replace(/\$/g, ""), 10) * 85.44;
+
+
+      const newListing = new Listing({
+        title: listing.title,                                      
+        description: listing.legacyName|| "No description provided.",
+        location: listing.legacyCity,
+        price: price || 1,
+        owner: ownerId,
+        image: {
+          url: data[i].contextualPictures[0].picture || "default.jpg",
+          filename: "placeholder",
+        },
+       geometry: {
+  type: "Point",
+  coordinates: [listing.legacyCoordinate.longitude, listing.legacyCoordinate.latitude]
+}
+
+      });
+
+      await newListing.save();
+    }
+
+    req.flash("success", "Multiple listings created successfully.");
+    res.redirect("/listings");
+  } catch (err) {
+    console.error("Error creating multiple listings:", err);
+    req.flash("error", "Failed to create listings.");
+    res.redirect("/listings/new");
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  for (let i = 0; i < sampleListings.length; i++) {
+    const sampleData = sampleListings[i];
+    const ownerId = req.user._id;
+    const geoData = await geocode(sampleData.location); // assuming each item has a 'location' field
+    if (!geoData) {
+      console.log(`Skipping ${sampleData.name} - invalid location`);
+      continue;
+    }
+    const newListing = new Listing({
+      title: sampleData.title,
+      description: sampleData.description,
+      location: sampleData.location,
+      price: sampleData.price || 1,
+      owner: ownerId,
+      image: {
+        url: sampleData.image.url,
+        filename: sampleData.image.filename,
+      },
+      geometry: geoData,
+    });
+    await newListing.save();
+  }
+  try {
+    const listingsData = await fetchHotelList(); // assuming it returns an array of hotel/listing objects
+
+    const ownerId = req.user._id; // assuming user is authenticated
+
+    for (let i = 0; i < 30; i++) {
+      let data = listingsData.data[i];
+      const geoData = await geocode(listingsData.data[i].location_string); // assuming each item has a 'location' field
+      if (!geoData) {
+        console.log(`Skipping ${data.name} - invalid location`);
+        continue;
+      }
+
+      const [minStr, maxStr] = data.price.replace(/\$/g, "").split(" - ");
+
+      // Convert to numbers
+      const min = parseInt(minStr, 10);
+      const max = parseInt(maxStr, 10);
+
+      // Calculate average
+      const avgPrice = Math.round((min + max) / 2) * 85.66;
+
+      const newListing = new Listing({
+        title: data.name,
+        description: data.ranking || "No description provided.",
+        location: data.location_string,
+        price: avgPrice || 1,
+        owner: ownerId,
+        image: {
+          url: data.photo.images.original.url || "default.jpg",
+          filename: "placeholder",
+        },
+        geometry: geoData,
+      });
+
+      await newListing.save();
+    }
+
+    req.flash("success", "Multiple listings created successfully.");
+    res.redirect("/listings");
+  } catch (err) {
+    console.error("Error creating multiple listings:", err);
+    req.flash("error", "Failed to create listings.");
+    res.redirect("/listings/new");
+  }
 };
 
 module.exports.editListing = async (req, res) => {

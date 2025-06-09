@@ -5,38 +5,66 @@
         <button>Create New Listings</button>
     </form> -->
   <style>
-    #filters {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-    }
+    
+  #filters-container {
+    overflow-x: auto;
+    flex: 1;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+  }
+
+  #filters-container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  #filters {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  .filter {
+    min-width: 90px;
+    text-align: center;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+  }
+
+  .filter:hover {
+    opacity: 1;
+    cursor: pointer;
+  }
+
+  .filter p {
+    font-size: 0.8rem;
+  }
+
+  button#scrollLeft,
+  button#scrollRight {
+    background-color: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  @media (max-width: 768px) {
     .filter {
-      text-align: center;
-      margin-right: 2rem;
-      margin-top: 2rem;
-      opacity: 0.7;
+      min-width: 70px;
     }
-    .filter:hover {
-      opacity: 1;
-      cursor: pointer;
-    }
-    .filter p {
-      font-size: 0.8rem;
-    }
-    .tax-info {
-      display: none;
-    }
-    .tax-toggle{
-      border: 1px solid black;
-      border-radius: 1rem;
-      height: 3.25rem;
-      padding: 1rem;
-      margin-left: 3rem;
-      display: flex;
-      align-items: center;
-    }
-  </style>
-  <div id="filters">
+  }
+</style>
+
+
+
+<div style="display: flex; align-items: center;">
+  <button id="scrollLeft"><i class="fa-solid fa-arrow-left"></i></button>
+
+  <div id="filters-container">
+    <div id="filters">
     <div class="filter">
       <div><i class="fa-solid fa-fire"></i></div>
       <p>Trending</p>
@@ -77,9 +105,12 @@
       <div><i class="fa-solid fa-ship"></i></div>
       <p>Boats</p>
     </div>
+  </div>
+  </div>
 
-    <div class="tax-toggle">
-      <div class="form-check-reverse form-switch">
+  <button id="scrollRight"><i class="fa-solid fa-arrow-right"></i></button>
+    <div class="tax-toggle ms-5 mb-3" >
+      <div class="form-check-reverse form-switch ">
         <input
           class="form-check-input"
           type="checkbox"
@@ -91,6 +122,7 @@
         >
       </div>
     </div>
+</div>
   </div>
   <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1">
     <% for(let listing of allListings){ %>
@@ -127,4 +159,17 @@
      }
     }
   });
+  const scrollLeftBtn = document.getElementById("scrollLeft");
+  const scrollRightBtn = document.getElementById("scrollRight");
+  const filtersContainer = document.getElementById("filters-container");
+
+  scrollLeftBtn.addEventListener("click", () => {
+    filtersContainer.scrollBy({ left: -200, behavior: "smooth" });
+  });
+
+  scrollRightBtn.addEventListener("click", () => {
+    filtersContainer.scrollBy({ left: 200, behavior: "smooth" });
+  });
+
+
 </script>
