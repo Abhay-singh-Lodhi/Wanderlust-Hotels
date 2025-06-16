@@ -62,7 +62,12 @@ module.exports.createListing = async (req, res, next) => {
 
 
 
-
+module.exports.searchListings =  async (req, res) => {
+  console.log(req.query);
+  const { country } = req.query;
+  const allListings = await Listing.find({ country: new RegExp(country, "i") });
+  res.render("listings/filterShow.ejs", { allListings });
+}
 
 
 
@@ -73,46 +78,46 @@ module.exports.createListing = async (req, res, next) => {
 
 
 module.exports.createMultipleListings = async (req, res, next) => {
-   try {
-    let listingsData = await airbnbHotelList(); // assuming it returns an array of hotel/listing objects
-    let data = listingsData.data.list;
-    console.log(data);
-    const ownerId = req.user._id; // assuming user is authenticated
+  //  try {
+//     let listingsData = await airbnbHotelList(); // assuming it returns an array of hotel/listing objects
+//     let data = listingsData.data.list;
+//     console.log(data);
+//     const ownerId = req.user._id; // assuming user is authenticated
 
-    for (let i = 0; i < data.length; i++) {
-      let listing = data[i].listing;
-      let priceString = data[i].structuredDisplayPrice.primaryLine.price ;
-let price = parseInt(priceString.replace(/\$/g, ""), 10) * 85.44;
+//     for (let i = 0; i < data.length; i++) {
+//       let listing = data[i].listing;
+//       let priceString = data[i].structuredDisplayPrice.primaryLine.price ;
+// let price = parseInt(priceString.replace(/\$/g, ""), 10) * 85.44;
 
 
-      const newListing = new Listing({
-        title: listing.title,                                      
-        description: listing.legacyName|| "No description provided.",
-        location: listing.legacyCity,
-        price: price || 1,
-        owner: ownerId,
-        image: {
-          url: data[i].contextualPictures[0].picture || "default.jpg",
-          filename: "placeholder",
-        },
-       geometry: {
-  type: "Point",
-  coordinates: [listing.legacyCoordinate.longitude, listing.legacyCoordinate.latitude]
-}
+//       const newListing = new Listing({
+//         title: listing.title,                                      
+//         description: listing.legacyName|| "No description provided.",
+//         location: listing.legacyCity,
+//         price: price || 1,
+//         owner: ownerId,
+//         image: {
+//           url: data[i].contextualPictures[0].picture || "default.jpg",
+//           filename: "placeholder",
+//         },
+//        geometry: {
+//   type: "Point",
+//   coordinates: [listing.legacyCoordinate.longitude, listing.legacyCoordinate.latitude]
+// }
 
-      });
+//       });
 
-      await newListing.save();
-    }
+//       await newListing.save();
+//     }
 
-    req.flash("success", "Multiple listings created successfully.");
-    res.redirect("/listings");
-  } catch (err) {
-    console.error("Error creating multiple listings:", err);
-    req.flash("error", "Failed to create listings.");
-    res.redirect("/listings/new");
+  //   req.flash("success", "Multiple listings created successfully.");
+  //   res.redirect("/listings");
+  // } catch (err) {
+  //   console.error("Error creating multiple listings:", err);
+  //   req.flash("error", "Failed to create listings.");
+  //   res.redirect("/listings/new");
 
-  }
+  // }
 
 
 
@@ -164,6 +169,7 @@ let price = parseInt(priceString.replace(/\$/g, ""), 10) * 85.44;
       description: sampleData.description,
       location: sampleData.location,
       price: sampleData.price || 1,
+      country: sampleData.country,
       owner: ownerId,
       image: {
         url: sampleData.image.url,
@@ -173,51 +179,51 @@ let price = parseInt(priceString.replace(/\$/g, ""), 10) * 85.44;
     });
     await newListing.save();
   }
-  try {
-    const listingsData = await fetchHotelList(); // assuming it returns an array of hotel/listing objects
+  // try {
+  //   const listingsData = await fetchHotelList(); // assuming it returns an array of hotel/listing objects
 
-    const ownerId = req.user._id; // assuming user is authenticated
+  //   const ownerId = req.user._id; // assuming user is authenticated
 
-    for (let i = 0; i < 30; i++) {
-      let data = listingsData.data[i];
-      const geoData = await geocode(listingsData.data[i].location_string); // assuming each item has a 'location' field
-      if (!geoData) {
-        console.log(`Skipping ${data.name} - invalid location`);
-        continue;
-      }
+  //   for (let i = 0; i < 30; i++) {
+  //     let data = listingsData.data[i];
+  //     const geoData = await geocode(listingsData.data[i].location_string); // assuming each item has a 'location' field
+  //     if (!geoData) {
+  //       console.log(`Skipping ${data.name} - invalid location`);
+  //       continue;
+  //     }
 
-      const [minStr, maxStr] = data.price.replace(/\$/g, "").split(" - ");
+  //     const [minStr, maxStr] = data.price.replace(/\$/g, "").split(" - ");
 
-      // Convert to numbers
-      const min = parseInt(minStr, 10);
-      const max = parseInt(maxStr, 10);
+  //     // Convert to numbers
+  //     const min = parseInt(minStr, 10);
+  //     const max = parseInt(maxStr, 10);
 
-      // Calculate average
-      const avgPrice = Math.round((min + max) / 2) * 85.66;
+  //     // Calculate average
+  //     const avgPrice = Math.round((min + max) / 2) * 85.66;
 
-      const newListing = new Listing({
-        title: data.name,
-        description: data.ranking || "No description provided.",
-        location: data.location_string,
-        price: avgPrice || 1,
-        owner: ownerId,
-        image: {
-          url: data.photo.images.original.url || "default.jpg",
-          filename: "placeholder",
-        },
-        geometry: geoData,
-      });
+  //     const newListing = new Listing({
+  //       title: data.name,
+  //       description: data.ranking || "No description provided.",
+  //       location: data.location_string,
+  //       price: avgPrice || 1,
+  //       owner: ownerId,
+  //       image: {
+  //         url: data.photo.images.original.url || "default.jpg",
+  //         filename: "placeholder",
+  //       },
+  //       geometry: geoData,
+  //     });
 
-      await newListing.save();
-    }
+  //     await newListing.save();
+  //   }
 
-    req.flash("success", "Multiple listings created successfully.");
-    res.redirect("/listings");
-  } catch (err) {
-    console.error("Error creating multiple listings:", err);
-    req.flash("error", "Failed to create listings.");
-    res.redirect("/listings/new");
-  }
+  //   req.flash("success", "Multiple listings created successfully.");
+  //   res.redirect("/listings");
+  // } catch (err) {
+  //   console.error("Error creating multiple listings:", err);
+  //   req.flash("error", "Failed to create listings.");
+  //   res.redirect("/listings/new");
+  // }
 };
 
 module.exports.editListing = async (req, res) => {

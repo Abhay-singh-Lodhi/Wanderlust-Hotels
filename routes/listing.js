@@ -6,6 +6,7 @@ const listingController = require("../controllers/listings.js");
 const multer = require("multer");
 const { storage } = require("../cloudConfig.js");
 const upload = multer({ storage });
+const Listing = require("../models/listing.js");
 
 router
   .route("/")
@@ -16,6 +17,15 @@ router
     validateListing,
     wrapAsync(listingController.createListing)
   );
+  // routes/listings.js (ya jahan tumhe suit kare)
+router.get("/search",listingController.searchListings);
+router.get("/autocomplete", async (req, res) => {
+  const q = req.query.query;
+  if (!q) return res.json([]);
+  const countries = await Listing.find({ country: { $regex: q, $options: "i" } }).distinct("country");
+  res.json(countries);
+});
+
 
   router.get("/create-multiple", isLoggedIn, listingController.createMultipleListings);
 

@@ -1,28 +1,118 @@
 <% layout('/layouts/boilerplate.ejs') %>
+
+<style>
+  .big-img {
+    width: 100%;
+    height: 408px;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+
+  .small-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .big-img {
+      height: 250px;
+    }
+    .small-img {
+      height: 120px;
+    }
+  }
+</style>
 <div class="row mt-3">
-  <div class="col-8 offset-3">
+  <div class="col-8 offset-md-1">
     <h3><b><%=listing.title%></b></h3>
   </div>
-  <div class="card col-6 offset-3 show-card listing-card">
-    <img
-     src="<%=listing.image.url%>"
-      class="card-img-top show-img"
-      alt="listing_image"
-    />
-    <div class="card-body">
-      <p class="card-text"></p>
-      <p class="card-text">Owned by <i><%= listing.owner.username %></i></p>
-      <p class="card-text"><%= listing.description %></p>
-      <p class="card-text">
-        &#8377; <%= listing.price.toLocaleString("en-IN") %>
-      </p>
-      <p class="card-text"><%= listing.location %></p>
-      <p class="card-text"><%= listing.country %></p>
+  <div class="card show-card listing-card">
+    <div class="container my-4">
+      <div class="row">
+        <!-- Big Image -->
+        <div class="col-md-5 offset-md-1 mb-3 mb-md-0">
+          <img src="<%=listing.image.url%>" class="big-img" alt="Main Image" />
+        </div>
+
+        <!-- 4 Small Images -->
+        <div class="col-md-5">
+          <div class="row g-2">
+            <div class="col-6">
+              <img
+                src="<%=listing.image.url%>"
+                class="small-img"
+                alt="Small 1"
+              />
+            </div>
+            <div class="col-6">
+              <img
+                src="<%=listing.image.url%>"
+                class="small-img"
+                alt="Small 2"
+              />
+            </div>
+            <div class="col-6">
+              <img
+                src="<%=listing.image.url%>"
+                class="small-img"
+                alt="Small 3"
+              />
+            </div>
+            <div class="col-6">
+              <img
+                src="<%=listing.image.url%>"
+                class="small-img"
+                alt="Small 4"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body" style="font-size: large; font-weight: 500">
+      <!-- Owner -->
+
+      <div
+        class="row"
+        style="border: 1px solid black; border-radius: 15px; height: 3rem"
+      >
+        <div class="col-4 offset-2 mt-2">
+          <p class="card-text mb-1">
+            Owned by <i><%= listing.owner.username %></i>
+          </p>
+        </div>
+        <div class="col-4 offset-2 mt-2">
+          <p class="card-text mb-2"><%= listing.description %></p>
+        </div>
+        <br />
+        <div
+        class="row"
+        style="border: 1px solid black; border-radius: 15px; height: 3rem"
+      >
+        <div class="col-4 offset-2 mt-2">
+          <p class="card-text mb-1">
+            <i class="fa-solid fa-location-dot me-1"></i>
+            <%= listing.location %>, <%= listing.country %>
+          </p>
+        </div>
+        <div class="col-4 offset-2 mt-2">
+          <p class="card-text text-success">
+            &#8377; <%= listing.price.toLocaleString("en-IN") %>
+          </p>
+        </div>
+      </div>
     </div>
   </div>
+  </div>
+
+<br>
+<br>
 
   <% if(currUser && listing.owner._id.equals(currUser._id)){ %>
-  <div class="btns mb-3">
+  <div class="btns mb-3 mt-3">
     <a
       href="/listings/<%= listing._id %>/edit"
       class="btn btn-dark col-1 offset-3 edit-btn"
@@ -112,8 +202,8 @@
     <% } %>
   </div>
   <hr />
-  <% if(listing.reviews.length>0){  %>
-<div class="col-8 offset-3 mb-3">
+  <% if(listing.reviews.length>0){ %>
+  <div class="col-8 offset-3 mb-3">
     <p><b>All Reviews</b></p>
     <div class="row">
       <% for(review of listing.reviews) { %>
@@ -138,78 +228,76 @@
       <%}%>
     </div>
   </div>
- <% } %>
+  <% } %>
 
- <div class="col-8 offset-3 mb-3">
-  <h3>where you'll be</h3>
-  <div id="map" style="height: 400px; width: 100%;"></div>
+  <div class="col-8 offset-3 mb-3">
+    <h3>where you'll be</h3>
+    <div id="map" style="height: 400px; width: 100%"></div>
 
-<div id="map" style="height: 400px; width: 100%;"></div>
+    <div id="map" style="height: 400px; width: 100%"></div>
 
-<div id="map" style="height: 400px; width: 100%;"></div>
+    <div id="map" style="height: 400px; width: 100%"></div>
 
-<% if (listing.geometry && listing.geometry.coordinates) { %>
-<script>
-  const redIcon = L.icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-black.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-  });
+    <% if (listing.geometry && listing.geometry.coordinates) { %>
+    <script>
+      const redIcon = L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-black.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
 
-  const coordinates = <%- JSON.stringify(listing.geometry.coordinates) %>; // [lng, lat]
-  const lat = coordinates[1];
-  const lng = coordinates[0];
+      const coordinates = <%- JSON.stringify(listing.geometry.coordinates) %>; // [lng, lat]
+      const lat = coordinates[1];
+      const lng = coordinates[0];
 
-  const map = L.map('map').setView([lat, lng], 12);
+      const map = L.map('map').setView([lat, lng], 12);
 
-  // Base layers definitions
-  const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  });
+      // Base layers definitions
+      const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      });
 
-  const esriSatellite = L.tileLayer(
-    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    {
-      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-    }
-  );
+      const esriSatellite = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        {
+          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        }
+      );
 
-  const esriStreet = L.tileLayer(
-    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-    {
-      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ'
-    }
-  );
+      const esriStreet = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        {
+          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ'
+        }
+      );
 
-  const esriTopo = L.tileLayer(
-    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-    {
-      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, USGS, NOAA'
-    }
-  );
+      const esriTopo = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+        {
+          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, USGS, NOAA'
+        }
+      );
 
-  // Add default base layer (OpenStreetMap)
-  osm.addTo(map);
+      // Add default base layer (OpenStreetMap)
+      osm.addTo(map);
 
-  // Marker
-  L.marker([lat, lng], { icon: redIcon }).addTo(map)
-    .bindPopup(`<b><%= listing.title %></b><br><%= listing.location %>`);
+      // Marker
+      L.marker([lat, lng], { icon: redIcon }).addTo(map)
+        .bindPopup(`<b><%= listing.title %></b><br><%= listing.location %>`);
 
-  // Base layers control for switching views
-  const baseMaps = {
-    "OpenStreetMap": osm,
-    "Satellite": esriSatellite,
-    "Street Map": esriStreet,
-    "Topographic": esriTopo
-  };
+      // Base layers control for switching views
+      const baseMaps = {
+        "OpenStreetMap": osm,
+        "Satellite": esriSatellite,
+        "Street Map": esriStreet,
+        "Topographic": esriTopo
+      };
 
-  L.control.layers(baseMaps).addTo(map);
-</script>
-<% } %>
-
-
- </div>
+      L.control.layers(baseMaps).addTo(map);
+    </script>
+    <% } %>
+  </div>
 </div>
